@@ -1,0 +1,51 @@
+{
+  "name": "@litert/binary",
+  "version": "0.1.0",
+  "description": "The binary data operate library for LiteRT.",
+  "main": "lib/index.js",
+  "scripts": {
+    "prepublishOnly": "npm run rebuild",
+    "build": "echo Using TypeScript && tsc -v && tsc -p .",
+    "build-watch": "echo Using TypeScript && tsc -v && tsc -w -p .",
+    "rebuild": "npm run clean && npm run lint && npm run build",
+    "clean": "rm -rf lib demo",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint --ext ts src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/litert/binary.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/litert/binary.js/issues"
+  },
+  "homepage": "https://github.com/litert/binary.js#readme",
+  "keywords": [
+    "litert",
+    "binary",
+    "buffer"
+  ],
+  "author": "Angus.Fenying <fenying@litert.org> (https://fenying.net)",
+  "license": "Apache-2.0",
+  "typings": "lib/index.d.ts",
+  "types": "lib/index.d.ts",
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
+      "pre-commit": "npm run lint && npm run typecheck"
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^11.0.0",
+    "@commitlint/config-conventional": "^11.0.0",
+    "@types/node": "^14.14.13",
+    "@typescript-eslint/eslint-plugin": "^4.10.0",
+    "@typescript-eslint/parser": "^4.10.0",
+    "eslint": "^7.15.0",
+    "husky": "^4.3.6",
+    "typescript": "^4.1.3"
+  },
+  "dependencies": {
+    "@litert/exception": "^1.0.0"
+  }
+}
