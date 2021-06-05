@@ -7,4 +7,6 @@
 /.gitignore
 /tsconfig.json
 /tslint.json
-/demos/
+/examples/
+/commitlint.config.js
+/.husky/

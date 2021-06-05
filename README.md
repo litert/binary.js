@@ -15,8 +15,8 @@ npm install @litert/binary --save
 
 ## Requirements
 
-- Node.js v8.x (Or newer)
-- TypeScript v3.1.x (Or newer)
+- Node.js v14.x (Or newer)
+- TypeScript v4.1.x (Or newer)
 
 ## License
 
