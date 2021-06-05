@@ -1,50 +1,17 @@
+import { AbstractBufferHelper } from './AbstractBufferHelper';
 import { IBufferWriter } from './Common';
 import * as E from './Errors';
 
-export class BufferWriter implements IBufferWriter {
+export class BufferWriter extends AbstractBufferHelper implements IBufferWriter {
 
-    protected _pos!: number;
     public constructor(
-        protected _buf: Buffer = Buffer.allocUnsafe(1024),
+        buf: Buffer = Buffer.allocUnsafe(1024),
         pos: number = 0,
         public autoAllocate: boolean = true,
         protected _autoAllocateSize: number = 1024
     ) {
 
-        this.seek(pos);
-    }
-
-    public get length(): number {
-
-        return this._buf.byteLength;
-    }
-
-    public get position(): number {
-
-        return this._pos;
-    }
-
-    public seek(newPosition: number): number {
-
-        if (newPosition > this._buf.byteLength) {
-
-            throw new E.E_EOF({ position: newPosition, length: 0 });
-        }
-
-        const prevOffset = this._pos;
-
-        this._pos = newPosition;
-
-        return prevOffset;
-    }
-
-    public seekDulta(dultaOffset: number): number {
-
-        const prevOffset = this._pos;
-
-        this._pos += dultaOffset;
-
-        return prevOffset;
+        super(buf, pos);
     }
 
     public allocate(length: number): void {

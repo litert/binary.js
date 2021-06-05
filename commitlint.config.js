@@ -14,8 +14,7 @@ module.exports = {
             'merge'
         ]],
         'scope-enum': [2, 'always', [
-            'reader',
-            'writer',
+            'buffer',
             'deps',
             'doc',
             'lint',
