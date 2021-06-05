@@ -1,7 +1,7 @@
 # LiteRT/Binary
 
 [![npm version](https://img.shields.io/npm/v/@litert/binary.svg?colorB=brightgreen)](https://www.npmjs.com/package/@litert/binary "Stable Version")
-[![License](https://img.shields.io/npm/l/@litert/binary.svg?maxAge=2592000?style=plastic)](https://github.com/litert/binary/blob/master/LICENSE)
+[![License](https://img.shields.io/npm/l/@litert/binary.svg?maxAge=2592000?style=plastic)](https://github.com/litert/binary.js/blob/master/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/litert/binary.js.svg)](https://github.com/litert/binary.js/issues)
 [![GitHub Releases](https://img.shields.io/github/release/litert/binary.js.svg)](https://github.com/litert/binary.js/releases "Stable Release")
 
