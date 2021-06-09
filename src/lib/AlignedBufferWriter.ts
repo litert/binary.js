@@ -23,8 +23,7 @@ export class AlignedBufferWriter extends AbstractBufferHelper implements IBuffer
     public constructor(
         buf: Buffer = Buffer.allocUnsafe(1024),
         pos: number = 0,
-        public autoAllocate: boolean = true,
-        protected _autoAllocateSize: number = 1024
+        public autoAllocateSize: number = 1024
     ) {
 
         super(buf, pos);
@@ -58,9 +57,9 @@ export class AlignedBufferWriter extends AbstractBufferHelper implements IBuffer
 
         if (pos + length > this._buf.byteLength) {
 
-            if (this.autoAllocate) {
+            if (this.autoAllocateSize > 0) {
 
-                this.allocate(Math.ceil(length / this._autoAllocateSize) * this._autoAllocateSize);
+                this.allocate(Math.ceil(length / this.autoAllocateSize) * this.autoAllocateSize);
             }
             else {
 
@@ -222,6 +221,50 @@ export class AlignedBufferWriter extends AbstractBufferHelper implements IBuffer
         const pos = this._prepare(this._pos, LENGTH);
 
         this._buf.writeInt32BE(v, pos);
+
+        this._pos = pos + LENGTH;
+    }
+
+    public writeFloatLE(v: number): void {
+
+        const LENGTH = 4;
+
+        const pos = this._prepare(this._pos, LENGTH);
+
+        this._buf.writeFloatLE(v, pos);
+
+        this._pos = pos + LENGTH;
+    }
+
+    public writeFloatBE(v: number): void {
+
+        const LENGTH = 4;
+
+        const pos = this._prepare(this._pos, LENGTH);
+
+        this._buf.writeFloatBE(v, pos);
+
+        this._pos = pos + LENGTH;
+    }
+
+    public writeDoubleLE(v: number): void {
+
+        const LENGTH = 8;
+
+        const pos = this._prepare(this._pos, LENGTH);
+
+        this._buf.writeDoubleLE(v, pos);
+
+        this._pos = pos + LENGTH;
+    }
+
+    public writeDoubleBE(v: number): void {
+
+        const LENGTH = 8;
+
+        const pos = this._prepare(this._pos, LENGTH);
+
+        this._buf.writeDoubleBE(v, pos);
 
         this._pos = pos + LENGTH;
     }
