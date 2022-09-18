@@ -10,3 +10,6 @@
 /examples/
 /commitlint.config.js
 /.husky/
+/test/
+/src/test/
+/src/examples/

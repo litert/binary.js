@@ -3,6 +3,7 @@
 ## v0.3.0
 
 - build(project): upgrade TypeScript to v4.8.
+- feat(file): Added sync/async file reader and writer.
 
 ## v0.2.0
 

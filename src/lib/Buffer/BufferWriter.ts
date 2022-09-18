@@ -15,8 +15,8 @@
  */
 
 import { AbstractBufferHelper } from './AbstractBufferHelper';
-import { IBufferWriter } from './Common';
-import * as E from './Errors';
+import { IBufferWriter } from '../Common';
+import * as E from '../Errors';
 
 export class BufferWriter extends AbstractBufferHelper implements IBufferWriter {
 
@@ -40,7 +40,7 @@ export class BufferWriter extends AbstractBufferHelper implements IBufferWriter 
 
     public truncate(): Buffer {
 
-        return this._buf.slice(0, this._pos);
+        return this._buf.subarray(0, this._pos);
     }
 
     private _prepare(pos: number, length: number): void {

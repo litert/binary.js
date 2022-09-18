@@ -8,9 +8,11 @@
     "build": "echo Using TypeScript && tsc -v && tsc -p .",
     "build-watch": "echo Using TypeScript && tsc -v && tsc -w -p .",
     "rebuild": "npm run clean && npm run lint && npm run build",
-    "clean": "rm -rf lib examples",
+    "test": "mocha",
+    "clean": "rm -rf lib examples test",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint --ext ts src"
+    "lint": "eslint --ext ts src",
+    "prepare": "husky install"
   },
   "repository": {
     "type": "git",
@@ -32,11 +34,11 @@
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",
     "@commitlint/config-conventional": "^17.1.0",
-    "@types/node": "^18.7.14",
-    "@typescript-eslint/eslint-plugin": "^5.36.1",
-    "@typescript-eslint/parser": "^5.36.1",
-    "eslint": "^8.23.0",
+    "@litert/eslint-plugin-rules": "^0.1.0",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^18.7.15",
     "husky": "^8.0.1",
+    "mocha": "^10.0.0",
     "typescript": "^4.8.2"
   },
   "dependencies": {

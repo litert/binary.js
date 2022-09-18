@@ -2,3 +2,6 @@
 /lib/
 /*.tsbuildinfo
 /examples/
+/debug/
+/data/
+/test/

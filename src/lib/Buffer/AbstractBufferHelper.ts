@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as E from './Errors';
+import * as E from '../Errors';
 
 export abstract class AbstractBufferHelper {
 

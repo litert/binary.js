@@ -15,7 +15,12 @@
  */
 
 export * from './Common';
-export * from './BufferReader';
-export * from './BufferWriter';
-export * from './AlignedBufferReader';
-export * from './AlignedBufferWriter';
+export * from './Buffer/BufferReader';
+export * from './Buffer/BufferWriter';
+export * from './Buffer/AlignedBufferReader';
+export * from './Buffer/AlignedBufferWriter';
+export * from './File/SyncFileReader';
+export * from './File/SyncFileBufferWriter';
+export * from './File/SyncFileWriter';
+export * from './File/AsyncFileWriter';
+export * from './File/AsyncFileBufferWriter';

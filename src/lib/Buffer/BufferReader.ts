@@ -15,8 +15,8 @@
  */
 
 import { AbstractBufferHelper } from './AbstractBufferHelper';
-import { IBinaryReader } from './Common';
-import * as E from './Errors';
+import { IBinaryReader } from '../Common';
+import * as E from '../Errors';
 
 export class BufferReader extends AbstractBufferHelper implements IBinaryReader {
 
@@ -61,7 +61,7 @@ export class BufferReader extends AbstractBufferHelper implements IBinaryReader 
             return ret;
         }
 
-        const ret = this._buf.slice(this._pos, this._pos + length);
+        const ret = this._buf.subarray(this._pos, this._pos + length);
 
         this._pos += length;
 
@@ -191,7 +191,7 @@ export class BufferReader extends AbstractBufferHelper implements IBinaryReader 
 
         this._assertSafe(this._pos, LENGTH);
 
-        let ret = this._buf.readBigUInt64LE(this._pos);
+        const ret = this._buf.readBigUInt64LE(this._pos);
 
         this._pos += LENGTH;
 
@@ -204,7 +204,7 @@ export class BufferReader extends AbstractBufferHelper implements IBinaryReader 
 
         this._assertSafe(this._pos, LENGTH);
 
-        let ret = this._buf.readBigUInt64BE(this._pos);
+        const ret = this._buf.readBigUInt64BE(this._pos);
 
         this._pos += LENGTH;
 
@@ -282,7 +282,7 @@ export class BufferReader extends AbstractBufferHelper implements IBinaryReader 
 
         this._assertSafe(this._pos, LENGTH);
 
-        let ret = this._buf.readBigInt64LE(this._pos);
+        const ret = this._buf.readBigInt64LE(this._pos);
 
         this._pos += LENGTH;
 
@@ -295,7 +295,7 @@ export class BufferReader extends AbstractBufferHelper implements IBinaryReader 
 
         this._assertSafe(this._pos, LENGTH);
 
-        let ret = this._buf.readBigInt64BE(this._pos);
+        const ret = this._buf.readBigInt64BE(this._pos);
 
         this._pos += LENGTH;
 

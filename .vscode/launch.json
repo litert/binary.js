@@ -7,8 +7,18 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "[LiteRT/BInary] debug",
+            "name": "[LiteRT/Binary] debug",
             "program": "${workspaceFolder}/src/examples/debug.ts",
+            "sourceMaps": true,
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "[LiteRT/Binary] Demo File",
+            "program": "${workspaceFolder}/src/examples/demo.File.ts",
             "sourceMaps": true,
             "outFiles": [
                 "${workspaceFolder}/**/*.js"

@@ -19,7 +19,7 @@ import * as $Exception from '@litert/exception';
 export const exceptionRegistry = $Exception.createExceptionRegistry({
     module: 'binary.litert.org',
     types: {
-        public: { index: $Exception.createIncreaseCodeIndex(0) }
+        binary: { index: $Exception.createIncreaseCodeIndex(0) }
     }
 });
 
@@ -27,12 +27,26 @@ export const E_EOF = exceptionRegistry.register({
     name: 'eof',
     message: 'Reached the end of the data.',
     metadata: {},
-    type: 'public'
+    type: 'binary'
 });
 
 export const E_NOT_SAFE_INTEGER = exceptionRegistry.register({
     name: 'not_safe_integer',
     message: 'The integer is not safe to be used in JavaScript, please use bigint instead.',
     metadata: {},
-    type: 'public'
+    type: 'binary'
+});
+
+export const E_NOT_WRITTEN_COMPLETELY = exceptionRegistry.register({
+    name: 'not_written_completely',
+    message: 'The data is not written to destination completely.',
+    metadata: {},
+    type: 'binary'
+});
+
+export const E_IO_BUSY = exceptionRegistry.register({
+    name: 'io_busy',
+    message: 'The writer/reader of IO is busy right now.',
+    metadata: {},
+    type: 'binary'
 });

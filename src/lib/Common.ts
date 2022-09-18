@@ -16,7 +16,7 @@
 
 export type IAsyncAuto<T, TSync extends boolean> = TSync extends false ? Promise<T> : T;
 
-export interface IBinaryHelper {
+export interface IBinaryHelper<TSync extends boolean> {
 
     /**
      * The current position to write next data.
@@ -35,7 +35,7 @@ export interface IBinaryHelper {
      *
      * @returns The previous position.
      */
-    seek(newPos: number): number;
+    seek(newPos: number): IAsyncAuto<number, TSync>;
 
     /**
      * Move position forward by dulta.
@@ -44,10 +44,10 @@ export interface IBinaryHelper {
      *
      * @returns The previous position.
      */
-    seekDulta(posDulta: number): number;
+    seekDulta(posDulta: number): IAsyncAuto<number, TSync>;
 }
 
-export interface IBinaryReader<TSync extends boolean = true> extends IBinaryHelper {
+export interface IBinaryReader<TSync extends boolean = true> extends IBinaryHelper<TSync> {
 
     /**
      * Read a determined-length buffer  at current position
@@ -153,7 +153,7 @@ export interface IBinaryReader<TSync extends boolean = true> extends IBinaryHelp
     readDoubleBE(): IAsyncAuto<number, TSync>;
 }
 
-export interface IBinaryWriter<TSync extends boolean = true> extends IBinaryHelper {
+export interface IBinaryWriter<TSync extends boolean = true> extends IBinaryHelper<TSync> {
 
     /**
      * Copy a buffer into current position.
@@ -306,7 +306,24 @@ export interface IBufferWriter extends IBinaryWriter {
     /**
      * Extends the current writing-buffer
      *
-     * @param how many bytes should be extended.
+     * @param length how many bytes should be extended.
      */
     allocate(length: number): void;
+}
+
+export interface IFileWriter<TSync extends boolean = true> extends IBinaryWriter<TSync> {
+
+    /**
+     * The size of buffer for improving writing, in bytes.
+     *
+     * @type uint32
+     */
+    readonly bufferSize: number;
+
+    /**
+     * Write data in buffer into file.
+     */
+    flush(): IAsyncAuto<void, TSync>;
+
+    close(): IAsyncAuto<void, TSync>;
 }

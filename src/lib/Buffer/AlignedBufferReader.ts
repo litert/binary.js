@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import * as E from './Errors';
+import * as E from '../Errors';
 import { AbstractBufferHelper } from './AbstractBufferHelper';
-import { IBinaryReader } from './Common';
+import { IBinaryReader } from '../Common';
 
 export class AlignedBufferReader extends AbstractBufferHelper implements IBinaryReader {
 
@@ -73,7 +73,7 @@ export class AlignedBufferReader extends AbstractBufferHelper implements IBinary
             return ret;
         }
 
-        const ret = this._buf.slice(pos, pos + length);
+        const ret = this._buf.subarray(pos, pos + length);
 
         this._pos = pos + length;
 
@@ -203,7 +203,7 @@ export class AlignedBufferReader extends AbstractBufferHelper implements IBinary
 
         const pos = this._prepare(this._pos, LENGTH);
 
-        let ret = this._buf.readBigUInt64LE(pos);
+        const ret = this._buf.readBigUInt64LE(pos);
 
         this._pos = pos + LENGTH;
 
@@ -216,7 +216,7 @@ export class AlignedBufferReader extends AbstractBufferHelper implements IBinary
 
         const pos = this._prepare(this._pos, LENGTH);
 
-        let ret = this._buf.readBigUInt64BE(pos);
+        const ret = this._buf.readBigUInt64BE(pos);
 
         this._pos = pos + LENGTH;
 
@@ -294,7 +294,7 @@ export class AlignedBufferReader extends AbstractBufferHelper implements IBinary
 
         const pos = this._prepare(this._pos, LENGTH);
 
-        let ret = this._buf.readBigInt64LE(pos);
+        const ret = this._buf.readBigInt64LE(pos);
 
         this._pos = pos + LENGTH;
 
@@ -307,7 +307,7 @@ export class AlignedBufferReader extends AbstractBufferHelper implements IBinary
 
         const pos = this._prepare(this._pos, LENGTH);
 
-        let ret = this._buf.readBigInt64BE(pos);
+        const ret = this._buf.readBigInt64BE(pos);
 
         this._pos = pos + LENGTH;
 
