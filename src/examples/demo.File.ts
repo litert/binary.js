@@ -112,6 +112,8 @@ function writeFileWithSyncFileWriter(file: string): void {
         w.writeDoubleBE(v);
     }
 
+    w.seek(10 * 1024 * 1024);
+
     for (const v of BUFFER_DATA) {
         w.writeBuffer(v);
     }
@@ -171,6 +173,8 @@ function writeFileWithSyncFileBufferWriter(file: string): void {
         w.writeDoubleLE(v);
         w.writeDoubleBE(v);
     }
+
+    w.seek(10 * 1024 * 1024);
 
     for (const v of BUFFER_DATA) {
         w.writeBuffer(v);
@@ -233,6 +237,8 @@ async function writeFileWithAsyncFileWriter(file: string): Promise<void> {
         await w.writeDoubleBE(v);
     }
 
+    await w.seek(10 * 1024 * 1024);
+
     for (const v of BUFFER_DATA) {
         await w.writeBuffer(v);
     }
@@ -292,6 +298,8 @@ async function writeFileWithAsyncFileBufferWriter(file: string): Promise<void> {
         await w.writeDoubleBE(v);
     }
 
+    await w.seek(10 * 1024 * 1024);
+
     for (const v of BUFFER_DATA) {
         await w.writeBuffer(v);
     }
@@ -299,56 +307,54 @@ async function writeFileWithAsyncFileBufferWriter(file: string): Promise<void> {
     await w.close();
 }
 
-function readFileWithSyncFileReader(prefix: string, file: string): void {
+function readFileWithSyncFileBufferReader(prefix: string, file: string): void {
 
-    const rfd = $FS.openSync(file, 'r');
-
-    const sfr = new $Binary.SyncFileReader(rfd);
+    const reader = $Binary.SyncFileBufferReader.createFromPath(file);
 
     console.log(prefix, 'Reading UINT8_DATA...');
 
     for (const v of UINT8_DATA) {
 
-        console.assert(sfr.readUInt8() === v);
+        console.assert(reader.readUInt8() === v);
     }
 
     console.log(prefix, 'Reading INT8_DATA...');
 
     for (const v of INT8_DATA) {
 
-        console.assert(sfr.readInt8() === v);
+        console.assert(reader.readInt8() === v);
     }
 
     console.log(prefix, 'Reading UINT16_DATA...');
 
     for (const v of UINT16_DATA) {
 
-        console.assert(sfr.readUInt16LE() === v);
-        console.assert(sfr.readUInt16BE() === v);
+        console.assert(reader.readUInt16LE() === v);
+        console.assert(reader.readUInt16BE() === v);
     }
 
     console.log(prefix, 'Reading INT16_DATA...');
 
     for (const v of INT16_DATA) {
 
-        console.assert(sfr.readInt16LE() === v);
-        console.assert(sfr.readInt16BE() === v);
+        console.assert(reader.readInt16LE() === v);
+        console.assert(reader.readInt16BE() === v);
     }
 
     console.log(prefix, 'Reading UINT32_DATA...');
 
     for (const v of UINT32_DATA) {
 
-        console.assert(sfr.readUInt32LE() === v);
-        console.assert(sfr.readUInt32BE() === v);
+        console.assert(reader.readUInt32LE() === v);
+        console.assert(reader.readUInt32BE() === v);
     }
 
     console.log(prefix, 'Reading INT32_DATA...');
 
     for (const v of INT32_DATA) {
 
-        console.assert(sfr.readInt32LE() === v);
-        console.assert(sfr.readInt32BE() === v);
+        console.assert(reader.readInt32LE() === v);
+        console.assert(reader.readInt32BE() === v);
     }
 
     console.log(prefix, 'Reading UINT64_DATA...');
@@ -356,8 +362,8 @@ function readFileWithSyncFileReader(prefix: string, file: string): void {
     for (const v of UINT64_DATA) {
 
         const V = BigInt(v);
-        const l = Math.random() < 0.5 ? sfr.readUIntSafeLE() : sfr.readUInt64LE();
-        const b = sfr.readUInt64BE();
+        const l = Math.random() < 0.5 ? reader.readUIntSafeLE() : reader.readUInt64LE();
+        const b = reader.readUInt64BE();
         console.assert(BigInt(l) === V);
         console.assert(b === V);
     }
@@ -366,16 +372,16 @@ function readFileWithSyncFileReader(prefix: string, file: string): void {
 
     for (const v of INT64_DATA) {
 
-        console.assert(sfr.readInt64LE() === BigInt(v));
-        console.assert(sfr.readInt64BE() === BigInt(v));
+        console.assert(reader.readInt64LE() === BigInt(v));
+        console.assert(reader.readInt64BE() === BigInt(v));
     }
 
     console.log(prefix, 'Reading FLOAT32_DATA...');
 
     for (const v of FLOAT32_DATA) {
 
-        const l = parseFloat(sfr.readFloatLE().toFixed(3));
-        const b = parseFloat(sfr.readFloatBE().toFixed(3));
+        const l = parseFloat(reader.readFloatLE().toFixed(3));
+        const b = parseFloat(reader.readFloatBE().toFixed(3));
         console.assert(l === v);
         console.assert(b === v);
     }
@@ -384,41 +390,361 @@ function readFileWithSyncFileReader(prefix: string, file: string): void {
 
     for (const v of DOUBLE64_DATA) {
 
-        console.assert(sfr.readDoubleLE() === v);
-        console.assert(sfr.readDoubleBE() === v);
+        console.assert(reader.readDoubleLE() === v);
+        console.assert(reader.readDoubleBE() === v);
     }
+
+    console.log(prefix, 'Seeking to 10MB offset...');
+
+    reader.seek(10 * 1024 * 1024);
 
     console.log(prefix, 'Reading BUFFER_DATA...');
 
     for (const v of BUFFER_DATA) {
 
-        const b = sfr.readBuffer(v.byteLength);
+        const b = reader.readBuffer(v.byteLength);
 
         console.assert(b.compare(v) === 0);
     }
 
-    $FS.closeSync(rfd);
+    reader.close();
 }
 
+async function readFileWithAsyncFileBufferReader(prefix: string, file: string): Promise<void> {
+
+    const reader = await $Binary.AsyncFileBufferReader.createFromPath(file);
+
+    console.log(prefix, 'Reading UINT8_DATA...');
+
+    for (const v of UINT8_DATA) {
+
+        console.assert(await reader.readUInt8() === v);
+    }
+
+    console.log(prefix, 'Reading INT8_DATA...');
+
+    for (const v of INT8_DATA) {
+
+        console.assert(await reader.readInt8() === v);
+    }
+
+    console.log(prefix, 'Reading UINT16_DATA...');
+
+    for (const v of UINT16_DATA) {
+
+        console.assert(await reader.readUInt16LE() === v);
+        console.assert(await reader.readUInt16BE() === v);
+    }
+
+    console.log(prefix, 'Reading INT16_DATA...');
+
+    for (const v of INT16_DATA) {
+
+        console.assert(await reader.readInt16LE() === v);
+        console.assert(await reader.readInt16BE() === v);
+    }
+
+    console.log(prefix, 'Reading UINT32_DATA...');
+
+    for (const v of UINT32_DATA) {
+
+        console.assert(await reader.readUInt32LE() === v);
+        console.assert(await reader.readUInt32BE() === v);
+    }
+
+    console.log(prefix, 'Reading INT32_DATA...');
+
+    for (const v of INT32_DATA) {
+
+        console.assert(await reader.readInt32LE() === v);
+        console.assert(await reader.readInt32BE() === v);
+    }
+
+    console.log(prefix, 'Reading UINT64_DATA...');
+
+    for (const v of UINT64_DATA) {
+
+        const V = BigInt(v);
+        const l = Math.random() < 0.5 ? await reader.readUIntSafeLE() : await reader.readUInt64LE();
+        const b = await reader.readUInt64BE();
+        console.assert(BigInt(l) === V);
+        console.assert(b === V);
+    }
+
+    console.log(prefix, 'Reading INT64_DATA...');
+
+    for (const v of INT64_DATA) {
+
+        console.assert(await reader.readInt64LE() === BigInt(v));
+        console.assert(await reader.readInt64BE() === BigInt(v));
+    }
+
+    console.log(prefix, 'Reading FLOAT32_DATA...');
+
+    for (const v of FLOAT32_DATA) {
+
+        const l = parseFloat((await reader.readFloatLE()).toFixed(3));
+        const b = parseFloat((await reader.readFloatBE()).toFixed(3));
+        console.assert(l === v);
+        console.assert(b === v);
+    }
+
+    console.log(prefix, 'Reading DOUBLE64_DATA...');
+
+    for (const v of DOUBLE64_DATA) {
+
+        console.assert(await reader.readDoubleLE() === v);
+        console.assert(await reader.readDoubleBE() === v);
+    }
+
+    console.log(prefix, 'Seeking to 10MB offset...');
+
+    await reader.seek(10 * 1024 * 1024);
+
+    console.log(prefix, 'Reading BUFFER_DATA...');
+
+    for (const v of BUFFER_DATA) {
+
+        const b = await reader.readBuffer(v.byteLength);
+
+        console.assert(b.compare(v) === 0);
+    }
+
+    await reader.close();
+}
+
+async function readFileWithAsyncFileReader(prefix: string, file: string): Promise<void> {
+
+    const reader = await $Binary.AsyncFileReader.createFromPath(file);
+
+    console.log(prefix, 'Reading UINT8_DATA...');
+
+    for (const v of UINT8_DATA) {
+
+        console.assert(await reader.readUInt8() === v);
+    }
+
+    console.log(prefix, 'Reading INT8_DATA...');
+
+    for (const v of INT8_DATA) {
+
+        console.assert(await reader.readInt8() === v);
+    }
+
+    console.log(prefix, 'Reading UINT16_DATA...');
+
+    for (const v of UINT16_DATA) {
+
+        console.assert(await reader.readUInt16LE() === v);
+        console.assert(await reader.readUInt16BE() === v);
+    }
+
+    console.log(prefix, 'Reading INT16_DATA...');
+
+    for (const v of INT16_DATA) {
+
+        console.assert(await reader.readInt16LE() === v);
+        console.assert(await reader.readInt16BE() === v);
+    }
+
+    console.log(prefix, 'Reading UINT32_DATA...');
+
+    for (const v of UINT32_DATA) {
+
+        console.assert(await reader.readUInt32LE() === v);
+        console.assert(await reader.readUInt32BE() === v);
+    }
+
+    console.log(prefix, 'Reading INT32_DATA...');
+
+    for (const v of INT32_DATA) {
+
+        console.assert(await reader.readInt32LE() === v);
+        console.assert(await reader.readInt32BE() === v);
+    }
+
+    console.log(prefix, 'Reading UINT64_DATA...');
+
+    for (const v of UINT64_DATA) {
+
+        const V = BigInt(v);
+        const l = Math.random() < 0.5 ? await reader.readUIntSafeLE() : await reader.readUInt64LE();
+        const b = await reader.readUInt64BE();
+        console.assert(BigInt(l) === V);
+        console.assert(b === V);
+    }
+
+    console.log(prefix, 'Reading INT64_DATA...');
+
+    for (const v of INT64_DATA) {
+
+        console.assert(await reader.readInt64LE() === BigInt(v));
+        console.assert(await reader.readInt64BE() === BigInt(v));
+    }
+
+    console.log(prefix, 'Reading FLOAT32_DATA...');
+
+    for (const v of FLOAT32_DATA) {
+
+        const l = parseFloat((await reader.readFloatLE()).toFixed(3));
+        const b = parseFloat((await reader.readFloatBE()).toFixed(3));
+        console.assert(l === v);
+        console.assert(b === v);
+    }
+
+    console.log(prefix, 'Reading DOUBLE64_DATA...');
+
+    for (const v of DOUBLE64_DATA) {
+
+        console.assert(await reader.readDoubleLE() === v);
+        console.assert(await reader.readDoubleBE() === v);
+    }
+
+    console.log(prefix, 'Seeking to 10MB offset...');
+
+    await reader.seek(10 * 1024 * 1024);
+
+    console.log(prefix, 'Reading BUFFER_DATA...');
+
+    for (const v of BUFFER_DATA) {
+
+        const b = await reader.readBuffer(v.byteLength);
+
+        console.assert(b.compare(v) === 0);
+    }
+
+    await reader.close();
+}
+
+function readFileWithSyncFileReader(prefix: string, file: string): void {
+
+    const reader = $Binary.SyncFileReader.createFromPath(file, 0, 'r');
+
+    console.log(prefix, 'Reading UINT8_DATA...');
+
+    for (const v of UINT8_DATA) {
+
+        console.assert(reader.readUInt8() === v);
+    }
+
+    console.log(prefix, 'Reading INT8_DATA...');
+
+    for (const v of INT8_DATA) {
+
+        console.assert(reader.readInt8() === v);
+    }
+
+    console.log(prefix, 'Reading UINT16_DATA...');
+
+    for (const v of UINT16_DATA) {
+
+        console.assert(reader.readUInt16LE() === v);
+        console.assert(reader.readUInt16BE() === v);
+    }
+
+    console.log(prefix, 'Reading INT16_DATA...');
+
+    for (const v of INT16_DATA) {
+
+        console.assert(reader.readInt16LE() === v);
+        console.assert(reader.readInt16BE() === v);
+    }
+
+    console.log(prefix, 'Reading UINT32_DATA...');
+
+    for (const v of UINT32_DATA) {
+
+        console.assert(reader.readUInt32LE() === v);
+        console.assert(reader.readUInt32BE() === v);
+    }
+
+    console.log(prefix, 'Reading INT32_DATA...');
+
+    for (const v of INT32_DATA) {
+
+        console.assert(reader.readInt32LE() === v);
+        console.assert(reader.readInt32BE() === v);
+    }
+
+    console.log(prefix, 'Reading UINT64_DATA...');
+
+    for (const v of UINT64_DATA) {
+
+        const V = BigInt(v);
+        const l = Math.random() < 0.5 ? reader.readUIntSafeLE() : reader.readUInt64LE();
+        const b = reader.readUInt64BE();
+        console.assert(BigInt(l) === V);
+        console.assert(b === V);
+    }
+
+    console.log(prefix, 'Reading INT64_DATA...');
+
+    for (const v of INT64_DATA) {
+
+        console.assert(reader.readInt64LE() === BigInt(v));
+        console.assert(reader.readInt64BE() === BigInt(v));
+    }
+
+    console.log(prefix, 'Reading FLOAT32_DATA...');
+
+    for (const v of FLOAT32_DATA) {
+
+        const l = parseFloat(reader.readFloatLE().toFixed(3));
+        const b = parseFloat(reader.readFloatBE().toFixed(3));
+        console.assert(l === v);
+        console.assert(b === v);
+    }
+
+    console.log(prefix, 'Reading DOUBLE64_DATA...');
+
+    for (const v of DOUBLE64_DATA) {
+
+        console.assert(reader.readDoubleLE() === v);
+        console.assert(reader.readDoubleBE() === v);
+    }
+
+    console.log(prefix, 'Seeking to 10MB offset...');
+
+    reader.seek(10 * 1024 * 1024);
+
+    console.log(prefix, 'Reading BUFFER_DATA...');
+
+    for (const v of BUFFER_DATA) {
+
+        const b = reader.readBuffer(v.byteLength);
+
+        console.assert(b.compare(v) === 0);
+    }
+
+    reader.close();
+}
+
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
 
     $FS.mkdirSync(TEST_DIR, { recursive: true });
 
     writeFileWithSyncFileWriter(TEST_FILE_1);
-    readFileWithSyncFileReader('[No Buffer]', TEST_FILE_1);
+    readFileWithSyncFileReader('[W+R]', TEST_FILE_1);
+    readFileWithSyncFileBufferReader('[W+Rb]', TEST_FILE_1);
+    await readFileWithAsyncFileReader('[W+Ra]', TEST_FILE_1);
+    await readFileWithAsyncFileBufferReader('[W+Rab]', TEST_FILE_1);
 
     writeFileWithSyncFileBufferWriter(TEST_FILE_2);
-    readFileWithSyncFileReader('[Buffer]', TEST_FILE_2);
+    readFileWithSyncFileReader('[Wb+R]', TEST_FILE_2);
+    readFileWithSyncFileBufferReader('[Wb+Rb]', TEST_FILE_2);
 
     await writeFileWithAsyncFileWriter(TEST_FILE_3);
-    readFileWithSyncFileReader('[Async No Buffer]', TEST_FILE_3);
+    readFileWithSyncFileReader('[Wa+R]', TEST_FILE_3);
+    readFileWithSyncFileBufferReader('[Wa+Rb]', TEST_FILE_3);
 
     await writeFileWithAsyncFileBufferWriter(TEST_FILE_4);
-    readFileWithSyncFileReader('[Async Buffer]', TEST_FILE_4);
+    readFileWithSyncFileReader('[Wab+R]', TEST_FILE_4);
+    readFileWithSyncFileBufferReader('[Wab+Rb]', TEST_FILE_4);
 
     $FS.unlinkSync(TEST_FILE_1);
     $FS.unlinkSync(TEST_FILE_2);
     $FS.unlinkSync(TEST_FILE_3);
     $FS.unlinkSync(TEST_FILE_4);
 
-})().catch(console.error);
+})();

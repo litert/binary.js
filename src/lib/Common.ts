@@ -54,8 +54,9 @@ export interface IBinaryReader<TSync extends boolean = true> extends IBinaryHelp
      *
      * @param length    The length of buffer to read, in bytes.
      * @param copy      Copy from the buffer or not.
+     * @param buffer    A given buffer to write data into.
      */
-    readBuffer(length: number, copy?: boolean): IAsyncAuto<Buffer, TSync>;
+    readBuffer(length: number, copy?: boolean, buffer?: Buffer): IAsyncAuto<Buffer, TSync>;
 
     /**
      * Read a 8-bit unsigned integer at current position
@@ -324,6 +325,18 @@ export interface IFileWriter<TSync extends boolean = true> extends IBinaryWriter
      * Write data in buffer into file.
      */
     flush(): IAsyncAuto<void, TSync>;
+
+    close(): IAsyncAuto<void, TSync>;
+}
+
+export interface IFileReader<TSync extends boolean = true> extends IBinaryReader<TSync> {
+
+    /**
+     * The size of buffer for improving writing, in bytes.
+     *
+     * @type uint32
+     */
+    readonly bufferSize: number;
 
     close(): IAsyncAuto<void, TSync>;
 }

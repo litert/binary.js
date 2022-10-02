@@ -15,6 +15,16 @@ This library currently provides following components:
 - [`AlignedBufferReader`](./src/examples/demo.AlignedBufferReader.ts): An implement of `BufferReader` with C-struct-like alignment supports.
 - [`AlignedBufferWriter`](./src/examples/demo.AlignedBufferWriter.ts): An implement of `BufferWriter` with C-struct-like alignment supports.
 
+- `SyncFileReader`: A helper of `File` that controls the reading position automatically, using synchronous IO.
+- `SyncFileBufferReader`: A helper of `File` that controls the reading position automatically, using buffer to reduce the synchronous IO.
+- `AsyncFileReader`: A helper of `File` that controls the reading position automatically, using asynchronous IO.
+- `AsyncFileBufferReader`: A helper of `File` that controls the reading position automatically, using buffer to reduce the asynchronous IO.
+
+- `SyncFileWriter`: A helper of `File` that controls the writing position automatically, using synchronous IO.
+- `SyncFileBufferWriter`: A helper of `File` that controls the writing position automatically, using buffer to reduce the synchronous IO.
+- `AsyncFileWriter`: A helper of `File` that controls the writing position automatically, using asynchronous IO.
+- `AsyncFileBufferWriter`: A helper of `File` that controls the writing position automatically, using buffer to reduce the asynchronous IO.
+
 ## Installation
 
 ```sh

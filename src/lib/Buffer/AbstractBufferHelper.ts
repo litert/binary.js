@@ -54,11 +54,7 @@ export abstract class AbstractBufferHelper {
 
     public seekDulta(dultaOffset: number): number {
 
-        const prevOffset = this._pos;
-
-        this._pos += dultaOffset;
-
-        return prevOffset;
+        return this.seek(this._pos + dultaOffset);
     }
 
 }

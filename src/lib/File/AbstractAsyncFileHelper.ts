@@ -20,14 +20,11 @@ export abstract class AbstractAsyncFileHelper {
 
     protected _syncLock: boolean = false;
 
-    protected _pos!: number;
-
     public constructor(
         protected _length: number,
-        pos: number = 0,
+        protected _pos: number = 0,
     ) {
 
-        this._seek(pos);
     }
 
     protected async _lock<T>(callback: () => Promise<T>): Promise<T> {
@@ -58,7 +55,7 @@ export abstract class AbstractAsyncFileHelper {
         return this._pos;
     }
 
-    protected _seek(newPosition: number): number {
+    public seek(newPosition: number): Promise<number> {
 
         if (newPosition > this._length) {
 
@@ -69,12 +66,7 @@ export abstract class AbstractAsyncFileHelper {
 
         this._pos = newPosition;
 
-        return prevOffset;
-    }
-
-    public seek(newPosition: number): Promise<number> {
-
-        return Promise.resolve(this._seek(newPosition));
+        return Promise.resolve(prevOffset);
     }
 
     public seekDulta(dultaOffset: number): Promise<number> {

@@ -15,41 +15,41 @@
  */
 
 import { promises as $FS } from 'fs';
-import { IFileWriter } from '../Common';
+import { IFileReader } from '../Common';
 import * as E from '../Errors';
-import { AbstractAsyncFileWriter } from './AbstractAsyncFileWriter';
+import { AbstractAsyncFileReader } from './AbstractAsyncFileReader';
 
 const VOID_RESOLVED_PROMISE = Promise.resolve();
 
 /**
  * The writer of a file, without buffer supports, in synchronous mode.
  */
-export class AsyncFileWriter extends AbstractAsyncFileWriter implements IFileWriter<false> {
+export class AsyncFileReader extends AbstractAsyncFileReader implements IFileReader<false> {
 
     public readonly bufferSize: number = 0;
 
     public constructor(
         fd: $FS.FileHandle,
         size: number,
-        pos: number = 0,
+        pos: number = 0
     ) {
 
-        super(fd, size, pos);
+        super(fd, size, pos, 0);
     }
 
-    public static async createFromPath(path: string, pos: number = 0): Promise<IFileWriter<false>> {
+    public static async createFromPath(path: string, pos: number = 0): Promise<IFileReader<false>> {
 
-        const fd = await $FS.open(path, 'w');
+        const fd = await $FS.open(path, 'r');
 
-        return new AsyncFileWriter(fd, (await fd.stat()).size, pos);
+        return new AsyncFileReader(fd, (await fd.stat()).size, pos);
     }
 
     public static async createFromFileDescriptor(
         fd: $FS.FileHandle,
         pos: number = 0
-    ): Promise<IFileWriter<false>> {
+    ): Promise<IFileReader<false>> {
 
-        return new AsyncFileWriter(fd, (await fd.stat()).size, pos);
+        return new AsyncFileReader(fd, (await fd.stat()).size, pos);
     }
 
     public flush(): Promise<void> {
@@ -57,16 +57,18 @@ export class AsyncFileWriter extends AbstractAsyncFileWriter implements IFileWri
         return VOID_RESOLVED_PROMISE;
     }
 
-    protected async _write(buf: Buffer, length: number): Promise<void> {
+    protected async _read(buf: Buffer, length: number): Promise<Buffer> {
 
-        const { bytesWritten } = await this._fd.write(buf, 0, length, this._pos);
+        if (this._pos + length > this._length) {
 
-        if (bytesWritten !== length) {
-
-            throw new E.E_NOT_WRITTEN_COMPLETELY({ bytesExpected: length, bytesWritten });
+            throw new E.E_EOF({ position: this._pos, length });
         }
 
-        this._savePosition(length);
+        await this._fd.read(buf, 0, length, this._pos);
+
+        this._pos += length;
+
+        return buf;
     }
 
     public seek(newPosition: number): Promise<number> {

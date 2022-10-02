@@ -16,16 +16,13 @@
 
 import * as E from '../Errors';
 
-export abstract class AbstractFileHelper {
-
-    protected _pos!: number;
+export abstract class AbstractSyncFileHelper {
 
     public constructor(
         protected _length: number,
-        pos: number = 0,
+        protected _pos: number = 0,
     ) {
 
-        this.seek(pos);
     }
 
     public get length(): number {
@@ -54,11 +51,7 @@ export abstract class AbstractFileHelper {
 
     public seekDulta(dultaOffset: number): number {
 
-        const prevOffset = this._pos;
-
-        this._pos += dultaOffset;
-
-        return prevOffset;
+        return this.seek(this._pos + dultaOffset);
     }
 
 }

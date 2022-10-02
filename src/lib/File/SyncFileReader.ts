@@ -15,149 +15,52 @@
  */
 
 import * as $FS from 'fs';
-import { AbstractFileHelper } from './AbstractFileHelper';
-import { IBinaryReader } from '../Common';
+import { IFileReader } from '../Common';
 import * as E from '../Errors';
+import { AbstractSyncFileReader } from './AbstractSyncFileReader';
 
-export class SyncFileReader extends AbstractFileHelper implements IBinaryReader {
+export class SyncFileReader extends AbstractSyncFileReader {
 
-    private readonly _numBuffer: Buffer = Buffer.allocUnsafe(8);
+    /**
+     * Create a new reader by opening a file with path.
+     * @param path          The path of the file.
+     * @param pos           The position where should the reader start at.
+     * @param openMode      The mode of opening the file. [Default: 'w']
+     */
+    public static createFromPath(
+        path: string,
+        pos: number = 0,
+        openMode: string = 'r',
+    ): IFileReader {
 
-    public constructor(
-        protected _fd: number,
-        pos: number = 0
-    ) {
-
-        super($FS.fstatSync(_fd).size, pos);
+        return new SyncFileReader($FS.openSync(path, openMode), pos, 0);
     }
 
-    public readUIntSafeLE(): number {
+    /**
+     * Create a new reader using a file descriptor.
+     *
+     * @param fd            The file descriptor.
+     * @param pos           The position where should the reader start at.
+     */
+    public static createFromFileDescriptor(
+        fd: number,
+        pos: number = 0,
+    ): IFileReader {
 
-        const buf = this._read(this._numBuffer, 8);
-
-        const highDWord = buf.readUInt32LE(4);
-
-        if (highDWord > 0x1FFFFF) {
-
-            throw new E.E_NOT_SAFE_INTEGER({ position: this._pos - 8 });
-        }
-
-        const lowDWord = buf.readUInt32LE();
-
-        return lowDWord + highDWord * 4294967296;
-    }
-
-    private _assertSafe(offset: number, length: number): void {
-
-        if (offset + length > this._length) {
-
-            throw new E.E_EOF({ position: offset, length });
-        }
-    }
-
-    public readBuffer(length: number): Buffer {
-
-        return this._read(Buffer.allocUnsafe(length), length);
+        return new SyncFileReader(fd, pos, 0);
     }
 
     protected _read(buf: Buffer, length: number): Buffer {
 
-        this._assertSafe(this._pos, length);
+        if (this._pos + length > this._length) {
+
+            throw new E.E_EOF({ position: this._pos, length });
+        }
 
         $FS.readSync(this._fd, buf, 0, length, this._pos);
 
         this._pos += length;
 
         return buf;
-    }
-
-    public readUInt8(): number {
-
-        return this._read(this._numBuffer, 1).readUInt8();
-    }
-
-    public readFloatLE(): number {
-
-        return this._read(this._numBuffer, 4).readFloatLE();
-    }
-
-    public readFloatBE(): number {
-
-        return this._read(this._numBuffer, 4).readFloatBE();
-    }
-
-    public readDoubleLE(): number {
-
-        return this._read(this._numBuffer, 8).readDoubleLE();
-    }
-
-    public readDoubleBE(): number {
-
-        return this._read(this._numBuffer, 8).readDoubleBE();
-    }
-
-    public readUInt16LE(): number {
-
-        return this._read(this._numBuffer, 2).readUInt16LE();
-    }
-
-    public readUInt16BE(): number {
-
-        return this._read(this._numBuffer, 2).readUInt16BE();
-    }
-
-    public readUInt32LE(): number {
-
-        return this._read(this._numBuffer, 4).readUInt32LE();
-    }
-
-    public readUInt32BE(): number {
-
-        return this._read(this._numBuffer, 4).readUInt32BE();
-    }
-
-    public readUInt64LE(): bigint {
-
-        return this._read(this._numBuffer, 8).readBigUInt64LE();
-    }
-
-    public readUInt64BE(): bigint {
-
-        return this._read(this._numBuffer, 8).readBigUInt64BE();
-    }
-
-    public readInt8(): number {
-
-        return this._read(this._numBuffer, 1).readInt8();
-    }
-
-    public readInt16LE(): number {
-
-        return this._read(this._numBuffer, 2).readInt16LE();
-    }
-
-    public readInt16BE(): number {
-
-        return this._read(this._numBuffer, 2).readInt16BE();
-    }
-
-    public readInt32LE(): number {
-
-        return this._read(this._numBuffer, 4).readInt32LE();
-    }
-
-    public readInt32BE(): number {
-
-        return this._read(this._numBuffer, 4).readInt32BE();
-    }
-
-    public readInt64LE(): bigint {
-
-        return this._read(this._numBuffer, 8).readBigInt64LE();
-    }
-
-    public readInt64BE(): bigint {
-
-        return this._read(this._numBuffer, 8).readBigInt64BE();
     }
 }

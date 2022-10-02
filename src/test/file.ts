@@ -1,4 +1,3 @@
-import * as $FS from 'fs';
 import * as Assert from 'assert';
 import * as _ from './utils';
 import * as $Binary from '../lib';
@@ -90,6 +89,11 @@ function testAsyncWriter(
             await w.writeDoubleLE(v);
             await w.writeDoubleBE(v);
         }
+        Assert.ok(1);
+    });
+
+    it('seek to 10mb offset', async () => {
+        await w.seek(_.OFFSET_10MB);
         Assert.ok(1);
     });
 
@@ -197,6 +201,11 @@ function testSyncWriter(
         Assert.ok(1);
     });
 
+    it('seek to 10mb offset', () => {
+        w.seek(_.OFFSET_10MB);
+        Assert.ok(1);
+    });
+
     it('write data of buffer', () => {
         for (const v of _.BUFFER_DATA) {
             w.writeBuffer(v);
@@ -219,7 +228,11 @@ describe('File', function() {
 
         testAsyncWriter(() => $Binary.AsyncFileWriter.createFromPath(file, 0));
 
-        _.testReadWritenFile(file);
+        _.testReadWritenFileWithSyncReader('SyncReader', file, (path) => $Binary.SyncFileReader.createFromPath(path, 0));
+        _.testReadWritenFileWithSyncReader('SyncBufferReader', file, (path) => $Binary.SyncFileBufferReader.createFromPath(path, 0, 16));
+        _.testReadWritenFileWithAsyncReader('AsyncReader', file, (path) => $Binary.AsyncFileReader.createFromPath(path, 0));
+        _.testReadWritenFileWithAsyncReader('AsyncBufferReader', file, (path) => $Binary.AsyncFileBufferReader.createFromPath(path, 0, 16));
+
     });
 
     describe('AsyncBufferWriter', function() {
@@ -228,36 +241,36 @@ describe('File', function() {
 
         testAsyncWriter(() => $Binary.AsyncFileBufferWriter.createFromPath(file, 0, 128));
 
-        _.testReadWritenFile(file);
+        _.testReadWritenFileWithSyncReader('SyncReader', file, (path) => $Binary.SyncFileReader.createFromPath(path, 0));
+        _.testReadWritenFileWithSyncReader('SyncBufferReader', file, (path) => $Binary.SyncFileBufferReader.createFromPath(path, 0, 16));
+        _.testReadWritenFileWithAsyncReader('AsyncReader', file, (path) => $Binary.AsyncFileReader.createFromPath(path, 0));
+        _.testReadWritenFileWithAsyncReader('AsyncBufferReader', file, (path) => $Binary.AsyncFileBufferReader.createFromPath(path, 0, 16));
+
     });
 
     describe('SyncWriter', function() {
 
         const file = `${_.TEST_DIR}/sync-file-writer.bin`;
 
-        testSyncWriter(() => {
+        testSyncWriter(() => $Binary.SyncFileWriter.createFromPath(file, 0, 'w'));
 
-            const fd = $FS.openSync(file, 'w');
-            const w = new $Binary.SyncFileWriter(fd);
+        _.testReadWritenFileWithSyncReader('SyncReader', file, (path) => $Binary.SyncFileReader.createFromPath(path, 0));
+        _.testReadWritenFileWithSyncReader('SyncBufferReader', file, (path) => $Binary.SyncFileBufferReader.createFromPath(path, 0, 16));
+        _.testReadWritenFileWithAsyncReader('AsyncReader', file, (path) => $Binary.AsyncFileReader.createFromPath(path, 0));
+        _.testReadWritenFileWithAsyncReader('AsyncBufferReader', file, (path) => $Binary.AsyncFileBufferReader.createFromPath(path, 0, 16));
 
-            return w;
-        });
-
-        _.testReadWritenFile(file);
     });
 
     describe('SyncBufferWriter', function() {
 
         const file = `${_.TEST_DIR}/sync-file-buffer-writer.bin`;
 
-        testSyncWriter(() => {
+        testSyncWriter(() => $Binary.SyncFileBufferWriter.createFromPath(file, 0, 128, 'w'));
 
-            const fd = $FS.openSync(file, 'w');
-            const w = new $Binary.SyncFileBufferWriter(fd, 0, 128);
+        _.testReadWritenFileWithSyncReader('SyncReader', file, (path) => $Binary.SyncFileReader.createFromPath(path, 0));
+        _.testReadWritenFileWithSyncReader('SyncBufferReader', file, (path) => $Binary.SyncFileBufferReader.createFromPath(path, 0, 16));
+        _.testReadWritenFileWithAsyncReader('AsyncReader', file, (path) => $Binary.AsyncFileReader.createFromPath(path, 0));
+        _.testReadWritenFileWithAsyncReader('AsyncBufferReader', file, (path) => $Binary.AsyncFileBufferReader.createFromPath(path, 0, 16));
 
-            return w;
-        });
-
-        _.testReadWritenFile(file);
     });
 });

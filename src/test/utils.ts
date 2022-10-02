@@ -2,6 +2,8 @@ import * as $Binary from '../lib';
 import * as Assert from 'assert';
 import * as $FS from 'fs';
 
+export const OFFSET_10MB = 10 * 1024 * 1024;
+
 function randInt(min: number, max: number): number {
 
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -41,113 +43,242 @@ export const TEST_DIR = './data';
 
 $FS.mkdirSync(TEST_DIR, { recursive: true });
 
-export function testReadWritenFile(path: string): void {
+export function testReadWritenFileWithSyncReader(
+    mode: string,
+    path: string,
+    createReader: (path: string) => $Binary.IFileReader
+): void {
 
-    let sfr!: $Binary.IBinaryReader;
-    let rfd: number = 0;
+    describe(mode, function() {
+        let reader!: $Binary.IFileReader;
 
-    it('open file for reading', () => {
+        it(`open file for reading`, () => {
 
-        rfd = $FS.openSync(path, 'r');
+            reader = createReader(path);
+            Assert.ok(1);
+        });
 
-        sfr = new $Binary.SyncFileReader(rfd);
-        Assert.ok(1);
+        it(`read data of uint8`, () => {
+            for (const v of UINT8_DATA) {
+
+                Assert.equal(reader.readUInt8(), v);
+            }
+        });
+
+        it(`read data of int8`, () => {
+            for (const v of INT8_DATA) {
+
+                Assert.equal(reader.readInt8(), v);
+            }
+        });
+
+        it(`read data of uint16`, () => {
+            for (const v of UINT16_DATA) {
+
+                Assert.equal(reader.readUInt16LE(), v);
+                Assert.equal(reader.readUInt16BE(), v);
+            }
+        });
+
+        it(`read data of int16`, () => {
+            for (const v of INT16_DATA) {
+
+                Assert.equal(reader.readInt16LE(), v);
+                Assert.equal(reader.readInt16BE(), v);
+            }
+        });
+
+        it(`read data of uint32`, () => {
+            for (const v of UINT32_DATA) {
+
+                Assert.equal(reader.readUInt32LE(), v);
+                Assert.equal(reader.readUInt32BE(), v);
+            }
+        });
+
+        it(`read data of int32`, () => {
+            for (const v of INT32_DATA) {
+
+                Assert.equal(reader.readInt32LE(), v);
+                Assert.equal(reader.readInt32BE(), v);
+            }
+        });
+
+        it(`read data of uint64`, () => {
+            for (const v of UINT64_DATA) {
+
+                const V = BigInt(v);
+                const l = Math.random() < 0.5 ? reader.readUIntSafeLE() : reader.readUInt64LE();
+                const b = reader.readUInt64BE();
+                Assert.equal(BigInt(l), V);
+                Assert.equal(b, V);
+            }
+        });
+
+        it(`read data of int64`, () => {
+            for (const v of INT64_DATA) {
+
+                Assert.equal(reader.readInt64LE(), BigInt(v));
+                Assert.equal(reader.readInt64BE(), BigInt(v));
+            }
+        });
+
+        it(`read data of float32`, () => {
+            for (const v of FLOAT32_DATA) {
+
+                const l = parseFloat(reader.readFloatLE().toFixed(3));
+                const b = parseFloat(reader.readFloatBE().toFixed(3));
+                Assert.equal(l, v);
+                Assert.equal(b, v);
+            }
+        });
+
+        it(`read data of double64`, () => {
+            for (const v of DOUBLE64_DATA) {
+
+                Assert.equal(reader.readDoubleLE(), v);
+                Assert.equal(reader.readDoubleBE(), v);
+            }
+        });
+
+        it(`seek to 10mb offset`, () => {
+            reader.seek(OFFSET_10MB);
+            Assert.ok(1);
+        });
+
+        it(`read data of buffer`, () => {
+            for (const v of BUFFER_DATA) {
+
+                const b = reader.readBuffer(v.byteLength);
+
+                Assert.equal(b.compare(v), 0);
+            }
+        });
+
+        it(`close file for reading`, () => {
+            reader.close();
+            Assert.ok(1);
+        });
+
     });
+}
 
-    it('read data of uint8', () => {
-        for (const v of UINT8_DATA) {
+export function testReadWritenFileWithAsyncReader(
+    mode: string,
+    path: string,
+    createReader: (path: string) => Promise<$Binary.IFileReader<false>>
+): void {
 
-            Assert.equal(sfr.readUInt8(), v);
-        }
-    });
+    describe(mode, function() {
+        let reader!: $Binary.IFileReader<false>;
 
-    it('read data of int8', () => {
-        for (const v of INT8_DATA) {
+        it(`open file for reading`, async () => {
 
-            Assert.equal(sfr.readInt8(), v);
-        }
-    });
+            reader = await createReader(path);
+            Assert.ok(1);
+        });
 
-    it('read data of uint16', () => {
-        for (const v of UINT16_DATA) {
+        it(`read data of uint8`, async () => {
+            for (const v of UINT8_DATA) {
 
-            Assert.equal(sfr.readUInt16LE(), v);
-            Assert.equal(sfr.readUInt16BE(), v);
-        }
-    });
+                Assert.equal(await reader.readUInt8(), v);
+            }
+        });
 
-    it('read data of int16', () => {
-        for (const v of INT16_DATA) {
+        it(`read data of int8`, async () => {
+            for (const v of INT8_DATA) {
 
-            Assert.equal(sfr.readInt16LE(), v);
-            Assert.equal(sfr.readInt16BE(), v);
-        }
-    });
+                Assert.equal(await reader.readInt8(), v);
+            }
+        });
 
-    it('read data of uint32', () => {
-        for (const v of UINT32_DATA) {
+        it(`read data of uint16`, async () => {
+            for (const v of UINT16_DATA) {
 
-            Assert.equal(sfr.readUInt32LE(), v);
-            Assert.equal(sfr.readUInt32BE(), v);
-        }
-    });
+                Assert.equal(await reader.readUInt16LE(), v);
+                Assert.equal(await reader.readUInt16BE(), v);
+            }
+        });
 
-    it('read data of int32', () => {
-        for (const v of INT32_DATA) {
+        it(`read data of int16`, async () => {
+            for (const v of INT16_DATA) {
 
-            Assert.equal(sfr.readInt32LE(), v);
-            Assert.equal(sfr.readInt32BE(), v);
-        }
-    });
+                Assert.equal(await reader.readInt16LE(), v);
+                Assert.equal(await reader.readInt16BE(), v);
+            }
+        });
 
-    it('read data of uint64', () => {
-        for (const v of UINT64_DATA) {
+        it(`read data of uint32`, async () => {
+            for (const v of UINT32_DATA) {
 
-            const V = BigInt(v);
-            const l = Math.random() < 0.5 ? sfr.readUIntSafeLE() : sfr.readUInt64LE();
-            const b = sfr.readUInt64BE();
-            Assert.equal(BigInt(l), V);
-            Assert.equal(b, V);
-        }
-    });
+                Assert.equal(await reader.readUInt32LE(), v);
+                Assert.equal(await reader.readUInt32BE(), v);
+            }
+        });
 
-    it('read data of int64', () => {
-        for (const v of INT64_DATA) {
+        it(`read data of int32`, async () => {
+            for (const v of INT32_DATA) {
 
-            Assert.equal(sfr.readInt64LE(), BigInt(v));
-            Assert.equal(sfr.readInt64BE(), BigInt(v));
-        }
-    });
+                Assert.equal(await reader.readInt32LE(), v);
+                Assert.equal(await reader.readInt32BE(), v);
+            }
+        });
 
-    it('read data of float32', () => {
-        for (const v of FLOAT32_DATA) {
+        it(`read data of uint64`, async () => {
+            for (const v of UINT64_DATA) {
 
-            const l = parseFloat(sfr.readFloatLE().toFixed(3));
-            const b = parseFloat(sfr.readFloatBE().toFixed(3));
-            Assert.equal(l, v);
-            Assert.equal(b, v);
-        }
-    });
+                const V = BigInt(v);
+                const l = Math.random() < 0.5 ? await reader.readUIntSafeLE() : await reader.readUInt64LE();
+                const b = await reader.readUInt64BE();
+                Assert.equal(BigInt(l), V);
+                Assert.equal(b, V);
+            }
+        });
 
-    it('read data of double64', () => {
-        for (const v of DOUBLE64_DATA) {
+        it(`read data of int64`, async () => {
+            for (const v of INT64_DATA) {
 
-            Assert.equal(sfr.readDoubleLE(), v);
-            Assert.equal(sfr.readDoubleBE(), v);
-        }
-    });
+                Assert.equal(await reader.readInt64LE(), BigInt(v));
+                Assert.equal(await reader.readInt64BE(), BigInt(v));
+            }
+        });
 
-    it('read data of buffer', () => {
-        for (const v of BUFFER_DATA) {
+        it(`read data of float32`, async () => {
+            for (const v of FLOAT32_DATA) {
 
-            const b = sfr.readBuffer(v.byteLength);
+                const l = parseFloat((await reader.readFloatLE()).toFixed(3));
+                const b = parseFloat((await reader.readFloatBE()).toFixed(3));
+                Assert.equal(l, v);
+                Assert.equal(b, v);
+            }
+        });
 
-            Assert.equal(b.compare(v), 0);
-        }
-    });
+        it(`read data of double64`, async () => {
+            for (const v of DOUBLE64_DATA) {
 
-    it('close file for reading', () => {
-        $FS.closeSync(rfd);
-        Assert.ok(1);
+                Assert.equal(await reader.readDoubleLE(), v);
+                Assert.equal(await reader.readDoubleBE(), v);
+            }
+        });
+
+        it(`seek to 10mb offset`, async () => {
+            await reader.seek(OFFSET_10MB);
+            Assert.ok(1);
+        });
+
+        it(`read data of buffer`, async () => {
+            for (const v of BUFFER_DATA) {
+
+                const b = await reader.readBuffer(v.byteLength);
+
+                Assert.equal(b.compare(v), 0);
+            }
+        });
+
+        it(`close file for reading`, async () => {
+            await reader.close();
+            Assert.ok(1);
+        });
+
     });
 }
