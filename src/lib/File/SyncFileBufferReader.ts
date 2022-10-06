@@ -150,8 +150,8 @@ export class SyncFileBufferReader extends AbstractSyncFileReader {
 
         if (pos >= this._bufferStartAt && pos < this._bufferStartAt + this.bufferSize) {
 
-            this._buffer = this._buffer.subarray(pos - this._bufferStartAt);
-            this._bufferStartAt = this._pos = pos;
+            this._buffer = this._realBuffer.subarray(pos - this._bufferStartAt);
+            this._pos = pos;
         }
         else if (pos >= 0 && pos < this._length) {
 

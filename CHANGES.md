@@ -1,5 +1,9 @@
 # Changes Logs
 
+## v0.3.1
+
+- fix(file): fixed reader buffer management.
+
 ## v0.3.0
 
 - build(project): upgrade TypeScript to v4.8.
